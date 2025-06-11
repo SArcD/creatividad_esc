@@ -182,3 +182,53 @@ elif menu == "Análisis de grupo":
         )
 
         st.plotly_chart(fig, use_container_width=True)
+
+
+
+        st.markdown("---")
+        st.subheader("🔍 Visualización individual o por perfil")
+
+        opciones_filtrado = st.radio("Selecciona el tipo de filtro:", ["Por nombre", "Por perfil similar"])
+
+        if opciones_filtrado == "Por nombre":
+            seleccion = st.selectbox("Selecciona un nombre:", df["Nombre"].unique())
+            alumno = df[df["Nombre"] == seleccion].iloc[0]
+
+            st.write(f"### Perfil de {seleccion}")
+            labels = dimensiones
+            values = [alumno[dim] for dim in dimensiones]
+            angles = np.linspace(0, 2 * np.pi, len(labels), endpoint=False).tolist()
+            values += values[:1]
+            angles += angles[:1]
+
+            fig2, ax2 = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
+            ax2.fill(angles, values, color='lightcoral', alpha=0.4)
+            ax2.plot(angles, values, color='red', linewidth=2)
+            ax2.set_yticks([1, 2, 3, 4, 5])
+            ax2.set_yticklabels(['1', '2', '3', '4', '5'])
+            ax2.set_xticks(angles[:-1])
+            ax2.set_xticklabels(labels)
+            ax2.set_title(f"Radar de {seleccion}", y=1.1)
+            st.pyplot(fig2)
+
+        elif opciones_filtrado == "Por perfil similar":
+            umbral = st.slider("Filtra por puntaje global mínimo:", 1.0, 5.0, 3.5, 0.1)
+            filtrado = df[df["Puntaje Global"] >= umbral]
+
+            st.write(f"{len(filtrado)} alumnos con puntaje global ≥ {umbral}")
+
+            for idx, row in filtrado.iterrows():
+                st.markdown(f"**{row['Nombre']} ({row['Puntaje Global']}):**")
+                values = [row[dim] for dim in dimensiones]
+                angles = np.linspace(0, 2 * np.pi, len(dimensiones), endpoint=False).tolist()
+                values += values[:1]
+                angles += angles[:1]
+                fig3, ax3 = plt.subplots(figsize=(5, 5), subplot_kw=dict(polar=True))
+                ax3.fill(angles, values, color='skyblue', alpha=0.3)
+                ax3.plot(angles, values, color='blue')
+                ax3.set_xticks(angles[:-1])
+                ax3.set_xticklabels(dimensiones)
+                ax3.set_yticks([1, 2, 3, 4, 5])
+                ax3.set_yticklabels(['1', '2', '3', '4', '5'])
+                ax3.set_title(row['Nombre'])
+                st.pyplot(fig3)
