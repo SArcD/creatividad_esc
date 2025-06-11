@@ -215,7 +215,7 @@ elif menu == "Análisis de grupo":
             umbral = st.slider("Filtra por puntaje global mínimo:", 1.0, 5.0, 3.5, 0.1)
             filtrado = df[df["Puntaje Global"] >= umbral]
 
-            st.write(f"{len(filtrado)} alumnos con puntaje global ≥ {umbral}")
+            st.write(f"{len(filtrado)} alumns con puntaje global ≥ {umbral}")
 
             for idx, row in filtrado.iterrows():
                 st.markdown(f"**{row['Nombre']} ({row['Puntaje Global']}):**")
