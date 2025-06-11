@@ -6,86 +6,113 @@ import datetime
 
 st.set_page_config(page_title="Escala de Creatividad de Gough", layout="centered")
 
-st.title("🧠 Escala de Creatividad de Gough (1976) - Adaptada")
+st.title("🧠 Escala de Creatividad de Gough (1976) - Adaptada con Escala Likert")
 
 nombre = st.text_input("Escribe tu nombre o iniciales (opcional):")
 
-st.write("Selecciona los adjetivos que consideres que te describen:")
+st.write("Responde cada afirmación según tu grado de acuerdo. Usa la escala Likert de 1 a 5:")
+st.write("1 = Totalmente en desacuerdo, 5 = Totalmente de acuerdo")
 
-# Diccionario de categorías y adjetivos adaptados a nuevas dimensiones
-categorias = {
-    "Capacidad para resolver problemas": ["Ingenioso", "Inventivo", "Original", "Reflexivo", "Intereses amplios"],
-    "Seguridad en sí mismo para resolver problemas": ["Seguro de sí mismo", "Egocéntrico", "Atractivo/Sexy", "Humorístico"],
-    "Capacidad para desafiar normas": ["Individualista", "No convencional", "Informal", "Pretencioso"],
-    "Apertura a nuevas experiencias": ["Curioso", "Explorador", "Espontáneo"],
-    "Tendencia a ajustarse a normas sociales y evitar riesgos creativos": ["Cauteloso", "Común", "Conservador", "Convencional", "Sumiso"]
+# Preguntas integradas directamente en el código
+preguntas_por_dimension = {
+    "Capacidad para resolver problemas": [
+        "Soy capaz de encontrar soluciones cuando enfrento dificultades.",
+        "Disfruto analizar situaciones para entender cómo resolverlas.",
+        "Busco diferentes enfoques antes de tomar una decisión.",
+        "Puedo adaptarme cuando las cosas no salen como esperaba.",
+        "Me esfuerzo por mejorar continuamente mis métodos de trabajo."
+    ],
+    "Seguridad en sí mismo para resolver problemas": [
+        "Confío en mi capacidad para superar retos complejos.",
+        "Creo en mis habilidades para tomar buenas decisiones.",
+        "Me mantengo firme incluso cuando otros dudan de mí.",
+        "No me intimidan los problemas difíciles.",
+        "Me siento seguro al proponer ideas nuevas."
+    ],
+    "Capacidad para desafiar normas": [
+        "Estoy dispuesto a cuestionar reglas establecidas.",
+        "No tengo miedo de expresar opiniones impopulares.",
+        "Me atrevo a proponer cambios aunque sean disruptivos.",
+        "Creo que romper esquemas puede ser positivo.",
+        "A veces rompo las reglas si creo que es lo correcto."
+    ],
+    "Apertura a nuevas experiencias": [
+        "Me interesa conocer culturas y formas de vida diferentes.",
+        "Disfruto aprender cosas nuevas cada día.",
+        "Estoy dispuesto a probar actividades desconocidas.",
+        "Me atrae explorar lo inesperado.",
+        "Me adapto fácilmente a cambios."
+    ],
+    "Tendencia a ajustarse a normas sociales y evitar riesgos creativos": [
+        "Prefiero seguir lo que dicta la mayoría.",
+        "Evito tomar decisiones que puedan parecer arriesgadas.",
+        "Me siento más cómodo repitiendo lo que ya ha funcionado.",
+        "Dudo en proponer ideas que no han sido probadas.",
+        "Prefiero mantenerme dentro de lo convencional."
+    ]
 }
 
-# Definir adjetivos positivos y negativos
-adjetivos_positivos = [
-    "Ingenioso", "Inventivo", "Original", "Reflexivo", "Intereses amplios",
-    "Seguro de sí mismo", "Egocéntrico", "Atractivo/Sexy", "Humorístico",
-    "Individualista", "No convencional", "Informal", "Pretencioso",
-    "Curioso", "Explorador", "Espontáneo"
-]
-adjetivos_negativos = ["Cauteloso", "Común", "Conservador", "Convencional", "Sumiso"]
+# Crear diccionario para almacenar respuestas
+respuestas = {}
 
-seleccionados = []
-resultados_dim = {}
+# Mostrar preguntas agrupadas por dimensión
+dim_scores = {}
+contador = 1
+for dimension, preguntas in preguntas_por_dimension.items():
+    st.subheader(dimension)
+    score_total = 0
+    for pregunta in preguntas:
+        respuesta = st.radio(
+            f"{contador}. {pregunta}",
+            options=[1, 2, 3, 4, 5],
+            index=2,
+            key=f"preg_{contador}"
+        )
+        respuestas[contador] = respuesta
+        score_total += respuesta
+        contador += 1
+    dim_scores[dimension] = score_total / len(preguntas)
 
-# Mostrar adjetivos por dimensión
-for categoria, adjetivos in categorias.items():
-    st.subheader(categoria)
-    seleccionados_cat = []
-    for adj in adjetivos:
-        if st.checkbox(adj, key=adj):
-            seleccionados.append(adj)
-            seleccionados_cat.append(adj)
-    resultados_dim[categoria] = seleccionados_cat
-
-# Calcular puntaje global
-puntaje = sum([1 for a in seleccionados if a in adjetivos_positivos]) - \
-          sum([1 for a in seleccionados if a in adjetivos_negativos])
+# Calcular puntaje global promedio
+puntaje_total = np.mean(list(respuestas.values()))
 
 st.markdown("---")
 st.subheader("🔍 Resultado general")
-st.write(f"**Puntaje total de creatividad:** {puntaje} (mín: -5, máx: +17)")
+st.write(f"**Puntaje promedio global:** {puntaje_total:.2f} (escala 1 a 5)")
 
 # Interpretación general
-if puntaje >= 12:
+if puntaje_total >= 4.0:
     interpretacion = "Alto perfil creativo"
     st.success(interpretacion)
-elif puntaje >= 6:
+elif puntaje_total >= 3.0:
     interpretacion = "Perfil moderadamente creativo"
     st.info(interpretacion)
-elif puntaje >= 0:
+elif puntaje_total >= 2.0:
     interpretacion = "Perfil con rasgos creativos limitados"
     st.warning(interpretacion)
 else:
     interpretacion = "Tendencia a evitar comportamientos creativos"
     st.error(interpretacion)
 
-# Mostrar selección por dimensión y puntajes
+# Mostrar resultados por dimensión
 st.subheader("📊 Perfil por dimensión")
-dim_scores = {}
-for cat, adjs in resultados_dim.items():
-    st.write(f"**{cat}:** {', '.join(adjs) if adjs else 'Sin selección'}")
-    dim_scores[cat] = len(adjs)
+for dim, score in dim_scores.items():
+    st.write(f"**{dim}:** {score:.2f}")
 
 # Consejos personalizados
 st.markdown("### 💡 Sugerencias personalizadas")
-if dim_scores["Capacidad para resolver problemas"] >= 4:
+if dim_scores.get("Capacidad para resolver problemas", 0) >= 4:
     st.write("- Tienes un pensamiento resolutivo. Usa retos o acertijos para mantener tu mente activa.")
-if dim_scores["Capacidad para desafiar normas"] >= 3:
+if dim_scores.get("Capacidad para desafiar normas", 0) >= 4:
     st.write("- Tiendes a cuestionar estructuras. Usa eso para proponer ideas disruptivas en tu entorno.")
-if dim_scores["Tendencia a ajustarse a normas sociales y evitar riesgos creativos"] >= 3:
+if dim_scores.get("Tendencia a ajustarse a normas sociales y evitar riesgos creativos", 0) >= 3.5:
     st.write("- Podrías estar evitando riesgos. Intenta un proyecto sin buscar aprobación externa.")
-if dim_scores["Seguridad en sí mismo para resolver problemas"] >= 3:
+if dim_scores.get("Seguridad en sí mismo para resolver problemas", 0) >= 4:
     st.write("- Tu autoconfianza puede potenciar tus decisiones creativas. Lidera desde tu autenticidad.")
-if dim_scores["Apertura a nuevas experiencias"] >= 2:
+if dim_scores.get("Apertura a nuevas experiencias", 0) >= 4:
     st.write("- Eres receptivo a lo nuevo. Prueba actividades artísticas o improvisación para nutrir tu creatividad.")
 
-# Gráfica radar
+# Radar chart
 st.subheader("📈 Visualización de tu perfil")
 labels = list(dim_scores.keys())
 values = list(dim_scores.values())
@@ -96,7 +123,8 @@ angles += angles[:1]
 fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
 ax.fill(angles, values, color='skyblue', alpha=0.4)
 ax.plot(angles, values, color='blue', linewidth=2)
-ax.set_yticklabels([])
+ax.set_yticks([1, 2, 3, 4, 5])
+ax.set_yticklabels(['1', '2', '3', '4', '5'])
 ax.set_xticks(angles[:-1])
 ax.set_xticklabels(labels)
 ax.set_title("Radar de Dimensiones Creativas", y=1.1)
@@ -104,12 +132,12 @@ st.pyplot(fig)
 
 # Guardar resultados
 if st.button("💾 Guardar mis respuestas"):
-    df = pd.DataFrame([{
+    df_resultado = pd.DataFrame([{
         "Nombre": nombre if nombre else "Anónimo",
         "Fecha": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
-        "Puntaje Total": puntaje,
+        "Puntaje Global": puntaje_total,
         "Interpretación": interpretacion,
         **dim_scores
     }])
-    df.to_csv("resultados_creatividad.csv", mode='a', header=False, index=False)
+    df_resultado.to_csv("resultados_creatividad_likert.csv", mode='a', header=False, index=False)
     st.success("Resultados guardados correctamente.")
