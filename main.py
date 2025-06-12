@@ -38,6 +38,17 @@ def plot_radar(labels, values, title):
 # =====================================
 def escala_ehs(nombre):
     st.subheader("Escala de Habilidades Sociales - Gismero (2010)")
+    st.info(
+        "🔎 **Instrucciones:** Responde según tu nivel de acuerdo con cada afirmación.\n"
+        "- 1 = Muy en desacuerdo\n"
+        "- 2 = En desacuerdo\n"
+        "- 3 = Ni de acuerdo ni en desacuerdo\n"
+        "- 4 = De acuerdo\n"
+        "- 5 = Muy de acuerdo\n\n"
+        "📌 **Interpretación general:**\n"
+        "Puntajes más altos indican mayor competencia en habilidades sociales dentro de esa dimensión específica."
+    )
+    
     dimensiones = {
         "Autoexpresión en situaciones sociales": [
             "Me resulta difícil comenzar una conversación con personas desconocidas.",
