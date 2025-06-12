@@ -310,6 +310,19 @@ def escala_phq9(nombre):
 # =====================================
 def escala_creatividad(nombre):
     st.subheader("Escala de Creatividad - Gough (adaptada)")
+
+    st.markdown("""
+    A continuación encontrarás una serie de afirmaciones relacionadas con tu forma de pensar, actuar y adaptarte ante situaciones nuevas.
+
+    Por favor, responde **qué tanto te identificas con cada afirmación** utilizando la siguiente escala:
+
+    - **1**: Muy en desacuerdo  
+    - **2**: En desacuerdo  
+    - **3**: Ni de acuerdo ni en desacuerdo  
+    - **4**: De acuerdo  
+    - **5**: Muy de acuerdo  
+    """)
+
     dimensiones = {
         "Capacidad para resolver problemas": [
             "Soy capaz de encontrar soluciones cuando enfrento dificultades.",
@@ -347,6 +360,7 @@ def escala_creatividad(nombre):
             "Prefiero mantenerme dentro de lo convencional."
         ]
     }
+
     respuestas = {}
     dim_scores = {}
     contador = 1
