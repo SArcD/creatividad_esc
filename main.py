@@ -276,7 +276,7 @@ respuestas = {}
 resultados_dim = {}
 
 for idx, (dim, texto) in enumerate(items):
-    valor = st.slider(f"{idx+1}. {texto}", 1, 5, 3, key=f"preg_{idx+1}")
+    valor = st.slider(f"{idx+1}. {texto}", 1, 5, 3, key=f"pregu_{idx+1}")
     if dim not in respuestas:
         respuestas[dim] = []
     respuestas[dim].append(valor)
