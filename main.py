@@ -83,26 +83,35 @@ def escala_ehs(nombre):
             contador += 1
         dim_scores[dim] = suma / len(preguntas)
 
-    st.markdown("---")
-    st.subheader("📊 Resultados por dimensión")
-    for k, v in dim_scores.items():
-        st.write(f"**{k}:** {v:.2f}")
-    plot_radar(list(dim_scores.keys()), list(dim_scores.values()), f"Radar de Habilidades Sociales - {nombre}")
-
+    # --- BLOQUE DE ANÁLISIS COLECTIVO PARA EHS ---
     st.markdown("---")
     st.subheader("📂 Análisis colectivo - Habilidades Sociales")
 
     archivo = st.file_uploader("Carga un archivo .csv con respuestas de estudiantes (EHS)", type=["csv"], key="ehs")
     if archivo:
         df = pd.read_csv(archivo)
-        dimensiones = [
-            "Autoexpresión en situaciones sociales", "Defensa de los propios derechos",
-            "Expresión de enfado o disconformidad", "Hacer peticiones",
-            "Iniciar interacciones positivas con el sexo opuesto", "Interacción con personas de estatus elevado"
-        ]
 
+        # Mapear preguntas a dimensiones con nombres amigables
+        mapa_dimensiones = {
+            "Autoexpresión en situaciones sociales": ["Q1", "Q2", "Q3"],
+            "Defensa de los propios derechos": ["Q4", "Q5", "Q6"],
+            "Expresión de enfado o disconformidad": ["Q7", "Q8", "Q9"],
+            "Hacer peticiones": ["Q10", "Q11", "Q12"],
+            "Iniciar interacciones positivas con el sexo opuesto": ["Q13", "Q14", "Q15"],
+            "Interacción con personas de estatus elevado": ["Q16", "Q17", "Q18"]
+        }
+
+        dimensiones = list(mapa_dimensiones.keys())
+
+        # Calcular promedios por dimensión
+        for nombre, preguntas in mapa_dimensiones.items():
+            df[nombre] = df[preguntas].mean(axis=1)
+
+        # Boxplot con nombres amigables
         st.write("📊 Boxplot de las dimensiones")
-        fig = px.box(df, y=dimensiones, points="all", title="Distribución por dimensión")
+        df_melted = df.melt(id_vars=["Nombre"], value_vars=dimensiones, var_name="Dimensión", value_name="Puntaje")
+        fig = px.box(df_melted, x="Dimensión", y="Puntaje", points="all", hover_data=["Nombre"],
+                 title="Distribución por dimensión (EHS)")
         st.plotly_chart(fig)
 
         st.subheader("🔍 Visualización individual o por perfil")
@@ -112,17 +121,16 @@ def escala_ehs(nombre):
             seleccion = st.selectbox("Selecciona un nombre:", df["Nombre"].unique(), key="ehs_nombre")
             alumno = df[df["Nombre"] == seleccion].iloc[0]
             plot_radar(dimensiones, [alumno[dim] for dim in dimensiones], f"Habilidades Sociales - {seleccion}")
-    
-        elif opciones_filtrado == "Por perfil similar":
-            umbral = st.slider("Filtra por puntaje global mínimo:", 1.0, 5.0, 3.5, 0.1, key="ehs_umbral")
-            df["Puntaje Global"] = df[dimensiones].mean(axis=1)
-            filtrado = df[df["Puntaje Global"] >= umbral]
 
+        elif opciones_filtrado == "Por perfil similar":
+            df["Puntaje Global"] = df[dimensiones].mean(axis=1)
+            umbral = st.slider("Filtra por puntaje global mínimo:", 1.0, 5.0, 3.5, 0.1, key="ehs_umbral")
+            filtrado = df[df["Puntaje Global"] >= umbral]
             st.write(f"{len(filtrado)} estudiantes con puntaje global ≥ {umbral}")
+
             for idx, row in filtrado.iterrows():
                 st.markdown(f"**{row['Nombre']} ({row['Puntaje Global']:.2f}):**")
                 plot_radar(dimensiones, [row[dim] for dim in dimensiones], row["Nombre"])
-
 
 
 # =====================================
