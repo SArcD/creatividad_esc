@@ -244,7 +244,7 @@ import datetime
 
 st.title("🗣️ Escala de Habilidades Sociales (EHS) - Gismero 2010")
 
-nombre = st.text_input("Nombre o identificador del estudiante:")
+nombre = st.text_input("Nombre o identificar del estudiante:")
 
 st.write("Responde a cada afirmación según el grado con el que te identifiques. Usa la siguiente escala:")
 st.markdown("""
