@@ -94,6 +94,30 @@ def escala_ehs(nombre):
             contador += 1
         dim_scores[dim] = suma / len(preguntas)
 
+
+    st.markdown("---")
+    st.subheader("📈 Resultados")
+
+    # Mostrar puntajes por dimensión
+    for dim, score in dim_scores.items():
+        st.write(f"**{dim}:** {score:.2f}")
+
+    # Calcular puntaje global (promedio de los promedios)
+    puntaje_global = sum(dim_scores.values()) / len(dim_scores)
+    st.write(f"\n**Puntaje Global:** {puntaje_global:.2f}")
+
+    # Diagnóstico simple basado en el puntaje global
+    st.markdown("### 🧠 Diagnóstico General")
+    if puntaje_global >= 4.0:
+        st.success("Excelente nivel de habilidades sociales. Se observa gran confianza y capacidad para interactuar en diversos contextos.")
+    elif puntaje_global >= 3.0:
+        st.info("Nivel adecuado de habilidades sociales. Hay buenas competencias, aunque pueden mejorarse algunos aspectos específicos.")
+    elif puntaje_global >= 2.0:
+        st.warning("Habilidades sociales limitadas. Se recomienda trabajar en la expresión y defensa de tus ideas en entornos sociales.")
+    else:
+        st.error("Dificultades significativas en habilidades sociales. Podría ser útil explorar estrategias para mejorar la comunicación interpersonal.")
+
+    
     # --- BLOQUE DE ANÁLISIS COLECTIVO PARA EHS ---
     st.markdown("---")
     st.subheader("📂 Análisis colectivo - Habilidades Sociales")
