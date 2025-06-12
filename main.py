@@ -280,7 +280,10 @@ def escala_creatividad(nombre):
         df["Puntaje Global"] = df[dimensiones].mean(axis=1)
 
         st.write("📊 Boxplot de dimensiones")
-        fig = px.box(df, y=dimensiones, points="all", title="Distribución de dimensiones creativas")
+        #fig = px.box(df, y=dimensiones, points="all", title="Distribución de dimensiones creativas")
+        fig = px.box(df_melted, x="Dimensión", y="Puntaje", points="all",
+             hover_data=["Nombre"], title="Distribución de dimensiones creativas")
+
         st.plotly_chart(fig)
 
         st.subheader("🔍 Visualización individual o por perfil")
