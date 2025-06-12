@@ -311,7 +311,7 @@ def escala_phq9(nombre):
 def escala_creatividad(nombre):
     st.subheader("Escala de Creatividad - Gough (adaptada)")
 
-    st.markdown("""
+    st.info("""
     A continuación encontrarás una serie de afirmaciones relacionadas con tu forma de pensar, actuar y adaptarte ante situaciones nuevas.
 
     Por favor, responde **qué tanto te identificas con cada afirmación** utilizando la siguiente escala:
