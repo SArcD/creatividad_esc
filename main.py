@@ -273,17 +273,27 @@ def escala_creatividad(nombre):
     if archivo:
         df = pd.read_csv(archivo)
         dimensiones = [
-            "Capacidad para resolver problemas", "Seguridad en sí mismo para resolver problemas",
-            "Capacidad para desafiar normas", "Apertura a nuevas experiencias",
+            "Capacidad para resolver problemas",
+            "Seguridad en sí mismo para resolver problemas",
+            "Capacidad para desafiar normas",
+            "Apertura a nuevas experiencias",
             "Tendencia a ajustarse a normas sociales y evitar riesgos creativos"
         ]
         df["Puntaje Global"] = df[dimensiones].mean(axis=1)
 
-        st.write("📊 Boxplot de dimensiones")
-        #fig = px.box(df, y=dimensiones, points="all", title="Distribución de dimensiones creativas")
-        fig = px.box(df_melted, x="Dimensión", y="Puntaje", points="all",
-             hover_data=["Nombre"], title="Distribución de dimensiones creativas")
+        # 👉 Derretir el DataFrame para plotly
+        df_melted = df.melt(id_vars=["Nombre", "Puntaje Global"],
+                            value_vars=dimensiones,
+                            var_name="Dimensión",
+                            value_name="Puntaje")
 
+        st.write("📊 Boxplot de dimensiones")
+        fig = px.box(df_melted,
+                     x="Dimensión",
+                     y="Puntaje",
+                     points="all",
+                     hover_data=["Nombre", "Puntaje Global"],
+                     title="Distribución de dimensiones creativas")
         st.plotly_chart(fig)
 
         st.subheader("🔍 Visualización individual o por perfil")
@@ -293,7 +303,7 @@ def escala_creatividad(nombre):
             seleccion = st.selectbox("Selecciona un nombre:", df["Nombre"].unique(), key="creatividad_nombre")
             alumno = df[df["Nombre"] == seleccion].iloc[0]
             plot_radar(dimensiones, [alumno[dim] for dim in dimensiones], f"Perfil Creativo - {seleccion}")
-    
+
         elif opciones_filtrado == "Por perfil similar":
             umbral = st.slider("Filtra por puntaje global mínimo:", 1.0, 5.0, 3.5, 0.1, key="creatividad_umbral")
             filtrado = df[df["Puntaje Global"] >= umbral]
@@ -302,7 +312,6 @@ def escala_creatividad(nombre):
             for idx, row in filtrado.iterrows():
                 st.markdown(f"**{row['Nombre']} ({row['Puntaje Global']:.2f}):**")
                 plot_radar(dimensiones, [row[dim] for dim in dimensiones], row["Nombre"])
-
 
 
 
