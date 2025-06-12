@@ -117,6 +117,9 @@ def escala_ehs(nombre):
     else:
         st.error("Dificultades significativas en habilidades sociales. Podría ser útil explorar estrategias para mejorar la comunicación interpersonal.")
 
+    # Gráfico tipo radar
+    plot_radar(list(dim_scores.keys()), list(dim_scores.values()), "Perfil de Habilidades Sociales")
+
     
     # --- BLOQUE DE ANÁLISIS COLECTIVO PARA EHS ---
     st.markdown("---")
