@@ -375,6 +375,15 @@ def escala_creatividad(nombre):
     st.subheader("📊 Perfil por dimensión")
     for k, v in dim_scores.items():
         st.write(f"**{k}:** {v:.2f}")
+        if v >= 4.0:
+            st.success(f"Fortaleza destacada en {k.lower()}.")
+        elif v >= 3.0:
+            st.info(f"Competencia adecuada en {k.lower()}.")
+        elif v >= 2.0:
+            st.warning(f"Dificultades moderadas en {k.lower()}.")
+        else:
+            st.error(f"Dificultades significativas en {k.lower()}.")
+
     plot_radar(list(dim_scores.keys()), list(dim_scores.values()), f"Radar Creatividad - {nombre}")
 
     
