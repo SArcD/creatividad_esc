@@ -201,6 +201,17 @@ def escala_ehs(nombre):
 # =====================================
 def escala_phq9(nombre):
     st.subheader("PHQ-9 - Evaluación de Síntomas Depresivos")
+
+    st.info(
+        "🔎 **Instrucciones:** Marca la opción que mejor describa tu experiencia en los últimos 14 días.\n"
+        "- 0 = En ningún momento\n"
+        "- 1 = Varios días\n"
+        "- 2 = Más de la mitad de los días\n"
+        "- 3 = Casi todos los días\n\n"
+        "📌 **Interpretación general:**\n"
+        "A mayor puntaje total, mayor presencia de síntomas depresivos."
+    )
+
     preguntas = [
         "Poco interés o placer en hacer cosas",
         "Sentirse decaído, deprimido o sin esperanzas",
@@ -212,14 +223,19 @@ def escala_phq9(nombre):
         "Moverse o hablar muy lento o estar inquieto",
         "Pensamientos de que estaría mejor muerto"
     ]
+
     respuestas = []
     for i, pregunta in enumerate(preguntas):
         resp = st.radio(f"{i+1}. {pregunta}", [0, 1, 2, 3], index=0, key=f"phq9_{i}")
         respuestas.append(resp)
 
     total = sum(respuestas)
-    st.subheader("🔍 Interpretación del puntaje total")
+    st.markdown("---")
+    st.subheader("📈 Resultados")
+
     st.write(f"**Puntaje total:** {total}")
+
+    # Diagnóstico
     if total <= 4:
         st.success("Mínima o sin depresión")
     elif total <= 9:
@@ -230,6 +246,12 @@ def escala_phq9(nombre):
         st.warning("Moderadamente severa")
     else:
         st.error("Severa")
+
+    st.markdown("### 🧠 Diagnóstico General")
+    st.caption("📌 El PHQ-9 no sustituye una evaluación clínica. Si experimentas malestar, considera buscar ayuda profesional.")
+
+    # Gráfico tipo radar
+    plot_radar(preguntas, respuestas, "Perfil de síntomas depresivos (PHQ-9)")
 
 
     st.markdown("---")
