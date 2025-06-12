@@ -266,6 +266,43 @@ def escala_creatividad(nombre):
         st.write(f"**{k}:** {v:.2f}")
     plot_radar(list(dim_scores.keys()), list(dim_scores.values()), f"Radar Creatividad - {nombre}")
 
+    st.markdown("---")
+    st.subheader("📂 Análisis colectivo - Creatividad")
+
+    archivo = st.file_uploader("Carga un archivo .csv con respuestas de creatividad", type=["csv"], key="creatividad")
+    if archivo:
+        df = pd.read_csv(archivo)
+        dimensiones = [
+            "Capacidad para resolver problemas", "Seguridad en sí mismo para resolver problemas",
+            "Capacidad para desafiar normas", "Apertura a nuevas experiencias",
+            "Tendencia a ajustarse a normas sociales y evitar riesgos creativos"
+        ]
+        df["Puntaje Global"] = df[dimensiones].mean(axis=1)
+
+        st.write("📊 Boxplot de dimensiones")
+        fig = px.box(df, y=dimensiones, points="all", title="Distribución de dimensiones creativas")
+        st.plotly_chart(fig)
+
+        st.subheader("🔍 Visualización individual o por perfil")
+        opciones_filtrado = st.radio("Selecciona el tipo de filtro:", ["Por nombre", "Por perfil similar"], key="creatividad_filtro")
+
+        if opciones_filtrado == "Por nombre":
+            seleccion = st.selectbox("Selecciona un nombre:", df["Nombre"].unique(), key="creatividad_nombre")
+            alumno = df[df["Nombre"] == seleccion].iloc[0]
+            plot_radar(dimensiones, [alumno[dim] for dim in dimensiones], f"Perfil Creativo - {seleccion}")
+    
+        elif opciones_filtrado == "Por perfil similar":
+            umbral = st.slider("Filtra por puntaje global mínimo:", 1.0, 5.0, 3.5, 0.1, key="creatividad_umbral")
+            filtrado = df[df["Puntaje Global"] >= umbral]
+            st.write(f"{len(filtrado)} estudiantes con puntaje global ≥ {umbral}")
+
+            for idx, row in filtrado.iterrows():
+                st.markdown(f"**{row['Nombre']} ({row['Puntaje Global']:.2f}):**")
+                plot_radar(dimensiones, [row[dim] for dim in dimensiones], row["Nombre"])
+
+
+
+
 # === LLAMADO A FUNCIONES ===
 if menu == "Escala de Habilidades Sociales":
     escala_ehs(nombre)
