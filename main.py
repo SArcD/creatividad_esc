@@ -402,9 +402,14 @@ def escala_creatividad():
     etiquetas = list(promedios_dim.keys())
     valores = list(promedios_dim.values())
     # Generar el gráfico de radar utilizando la función plot_radar predefinida
-    figura_radar = plot_radar(etiquetas, valores)
-    st.pyplot(figura_radar)
+    #figura_radar = plot_radar(etiquetas, valores)
+    #st.pyplot(figura_radar)
+    # Mostrar gráfico de radar con los promedios por dimensión
+    st.subheader("Perfil de Creatividad por Dimensión")
+    plot_radar(etiquetas, valores, title="Radar Creatividad")
 
+
+    
     st.markdown("---")
     st.subheader("📂 Análisis colectivo - Creatividad")
 
