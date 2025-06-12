@@ -244,7 +244,7 @@ import datetime
 
 st.title("🗣️ Escala de Habilidades Sociales (EHS) - Gismero 2010")
 
-nombre = st.text_input("Nombre o identificador del estudiante:")
+nombre = st.text_input("Nombre o identificador:")
 
 st.write("Responde a cada afirmación según el grado con el que te identifiques. Usa la siguiente escala:")
 st.markdown("""
@@ -288,7 +288,7 @@ for idx, (dim, texto) in enumerate(items):
         f"{idx+1}. {texto}",
         options=list(opciones_likert.keys()),
         index=2,
-        key=f"preg_{idx+1}"
+        key=f"pregu_{idx+1}"
     )
     valor = opciones_likert[opcion]
     if dim not in respuestas:
