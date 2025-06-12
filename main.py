@@ -160,6 +160,40 @@ def escala_phq9(nombre):
     else:
         st.error("Severa")
 
+
+    st.markdown("---")
+    st.subheader("📂 Análisis colectivo - PHQ-9")
+
+    archivo = st.file_uploader("Carga un archivo .csv con respuestas de PHQ-9", type=["csv"], key="phq9")
+    if archivo:
+        df = pd.read_csv(archivo)
+        preguntas = [
+            "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9"
+        ]
+        df["Puntaje Total"] = df[preguntas].sum(axis=1)
+
+        st.write("📊 Boxplot de respuestas por ítem")
+        fig = px.box(df, y=preguntas, points="all", title="Distribución de respuestas (PHQ-9)")
+        st.plotly_chart(fig)
+
+        st.subheader("🔍 Visualización individual o por perfil")
+        opciones_filtrado = st.radio("Selecciona el tipo de filtro:", ["Por nombre", "Por perfil similar"], key="phq9_filtro")
+
+        if opciones_filtrado == "Por nombre":
+            seleccion = st.selectbox("Selecciona un nombre:", df["Nombre"].unique(), key="phq9_nombre")
+            alumno = df[df["Nombre"] == seleccion].iloc[0]
+            plot_radar(preguntas, [alumno[p] for p in preguntas], f"PHQ-9 - {seleccion}")
+    
+        elif opciones_filtrado == "Por perfil similar":
+            umbral = st.slider("Filtra por puntaje total mínimo:", 0, 27, 10, 1, key="phq9_umbral")
+            filtrado = df[df["Puntaje Total"] >= umbral]
+            st.write(f"{len(filtrado)} estudiantes con puntaje total ≥ {umbral}")
+
+            for idx, row in filtrado.iterrows():
+                st.markdown(f"**{row['Nombre']} ({row['Puntaje Total']}):**")
+                plot_radar(preguntas, [row[p] for p in preguntas], row["Nombre"])
+
+
 # =====================================
 # ESCALA DE CREATIVIDAD DE GOUGH
 # =====================================
