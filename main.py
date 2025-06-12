@@ -243,7 +243,7 @@ def escala_phq9(nombre):
     elif total <= 14:
         st.info("Moderada")
     elif total <= 19:
-        st.warning("Moderadamente severa")
+        st.warning("Moderadamente Severa")
     else:
         st.error("Severa")
 
