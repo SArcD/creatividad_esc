@@ -84,17 +84,29 @@ def escala_ehs(nombre):
     respuestas = {}
     dim_scores = {}
     contador = 1
+#    for dim, preguntas in dimensiones.items():
+#        st.subheader(dim)
+#        suma = 0
+#        for preg in preguntas:
+#            resp = st.radio(f"{contador}. {preg}", options=[1, 2, 3, 4, 5], index=2, key=f"ehs_{contador}")
+#            respuestas[contador] = resp
+#            suma += resp
+#            contador += 1
+#        dim_scores[dim] = suma / len(preguntas)
+
     for dim, preguntas in dimensiones.items():
         st.subheader(dim)
         suma = 0
         for preg in preguntas:
             resp = st.radio(f"{contador}. {preg}", options=[1, 2, 3, 4, 5], index=2, key=f"ehs_{contador}")
             respuestas[contador] = resp
-            suma += resp
+            resp_invertido = 6 - resp  # Invertir la escala para que 5 = alta habilidad social
+            suma += resp_invertido
             contador += 1
         dim_scores[dim] = suma / len(preguntas)
 
 
+    
     st.markdown("---")
     st.subheader("📈 Resultados")
 
