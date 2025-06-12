@@ -308,74 +308,102 @@ def escala_phq9(nombre):
 # =====================================
 # ESCALA DE CREATIVIDAD DE GOUGH
 # =====================================
-def escala_creatividad(nombre):
-    st.subheader("Escala de Creatividad - Gough (adaptada)")
+import streamlit as st
+
+def escala_creatividad():
+    # Título e instrucciones iniciales
+    st.title("Escala de Creatividad (Adaptada de Gough)")
+    st.markdown("""
+    **Instrucciones:** A continuación encontrarás una serie de afirmaciones relacionadas con la creatividad. 
+    Lee cada afirmación y selecciona el nivel que mejor representa cuánto te identificas con ella, usando una escala de 1 a 5:
+    - **1:** Muy en desacuerdo (la afirmación no te describe en absoluto).
+    - **5:** Muy de acuerdo (te describes completamente con la afirmación).
+    *Utiliza los valores intermedios (2, 3, 4) para matices de acuerdo o frecuencia.* 
+    """)
+
+    # Definir las preguntas agrupadas por dimensión (ejemplo; reemplazar con las reales)
     dimensiones = {
-        "Capacidad para resolver problemas": [
-            "Soy capaz de encontrar soluciones cuando enfrento dificultades.",
-            "Disfruto analizar situaciones para entender cómo resolverlas.",
-            "Busco diferentes enfoques antes de tomar una decisión.",
-            "Puedo adaptarme cuando las cosas no salen como esperaba.",
-            "Me esfuerzo por mejorar continuamente mis métodos de trabajo."
+        "Dimensión 1": [
+            "Me gusta proponer ideas nuevas e innovadoras.",
+            "Tiende a pensar de manera poco convencional."
         ],
-        "Seguridad en sí mismo para resolver problemas": [
-            "Confío en mi capacidad para superar retos complejos.",
-            "Creo en mis habilidades para tomar buenas decisiones.",
-            "Me mantengo firme incluso cuando otros dudan de mí.",
-            "No me intimidan los problemas difíciles.",
-            "Me siento seguro al proponer ideas nuevas."
+        "Dimensión 2": [
+            "Me considero una persona curiosa.",
+            "Disfruto explorando soluciones creativas a los problemas."
         ],
-        "Capacidad para desafiar normas": [
-            "Estoy dispuesto a cuestionar reglas establecidas.",
-            "No tengo miedo de expresar opiniones impopulares.",
-            "Me atrevo a proponer cambios aunque sean disruptivos.",
-            "Creo que romper esquemas puede ser positivo.",
-            "A veces rompo las reglas si creo que es lo correcto."
-        ],
-        "Apertura a nuevas experiencias": [
-            "Me interesa conocer culturas y formas de vida diferentes.",
-            "Disfruto aprender cosas nuevas cada día.",
-            "Estoy dispuesto a probar actividades desconocidas.",
-            "Me atrae explorar lo inesperado.",
-            "Me adapto fácilmente a cambios."
-        ],
-        "Tendencia a ajustarse a normas sociales y evitar riesgos creativos": [
-            "Prefiero seguir lo que dicta la mayoría.",
-            "Evito tomar decisiones que puedan parecer arriesgadas.",
-            "Me siento más cómodo repitiendo lo que ya ha funcionado.",
-            "Dudo en proponer ideas que no han sido probadas.",
-            "Prefiero mantenerme dentro de lo convencional."
+        "Dimensión 3": [
+            "Soy persistente cuando intento resolver un desafío difícil.",
+            "Me adapto fácilmente a situaciones nuevas o inesperadas."
         ]
     }
+
+    # Diccionario para almacenar las respuestas del usuario
     respuestas = {}
-    dim_scores = {}
-    contador = 1
-    for dim, preguntas in dimensiones.items():
-        st.subheader(dim)
-        suma = 0
-        for preg in preguntas:
-            resp = st.radio(f"{contador}. {preg}", options=[1, 2, 3, 4, 5], index=2, key=f"crea_{contador}")
-            respuestas[contador] = resp
-            suma += resp
-            contador += 1
-        dim_scores[dim] = suma / len(preguntas)
 
-    puntaje_total = np.mean(list(respuestas.values()))
-    st.subheader("🔍 Resultado general")
-    st.write(f"**Puntaje promedio global:** {puntaje_total:.2f}")
-    if puntaje_total >= 4.0:
-        st.success("Alto perfil creativo")
-    elif puntaje_total >= 3.0:
-        st.info("Perfil moderadamente creativo")
-    elif puntaje_total >= 2.0:
-        st.warning("Perfil con rasgos creativos limitados")
+    # Formulario para responder las preguntas de cada dimensión
+    with st.form("form_creatividad"):
+        for nombre_dim, preguntas in dimensiones.items():
+            st.subheader(nombre_dim)  # Encabezado de la dimensión
+            for texto_pregunta in preguntas:
+                # Cada pregunta se muestra con un slider de 1 a 5
+                respuesta = st.slider(texto_pregunta, min_value=1, max_value=5, value=3)
+                respuestas[texto_pregunta] = respuesta
+        # Botón de envío del formulario
+        enviado = st.form_submit_button("Calcular resultados")
+
+    if not enviado:
+        # Si el formulario no se ha enviado, no mostrar resultados aún
+        return
+
+    # Calcular el promedio por dimensión
+    promedios_dim = {}
+    for nombre_dim, preguntas in dimensiones.items():
+        # Extraer las respuestas de las preguntas de esta dimensión
+        valores = [respuestas[texto] for texto in preguntas]
+        if valores:
+            promedio = sum(valores) / len(valores)
+        else:
+            promedio = 0
+        promedios_dim[nombre_dim] = promedio
+
+    # Calcular puntaje global (promedio de todas las respuestas)
+    todos_valores = list(respuestas.values())
+    if todos_valores:
+        puntaje_global = sum(todos_valores) / len(todos_valores)
     else:
-        st.error("Tendencia a evitar comportamientos creativos")
+        puntaje_global = 0
 
-    st.subheader("📊 Perfil por dimensión")
-    for k, v in dim_scores.items():
-        st.write(f"**{k}:** {v:.2f}")
-    plot_radar(list(dim_scores.keys()), list(dim_scores.values()), f"Radar Creatividad - {nombre}")
+    # Función auxiliar para interpretar el nivel según el puntaje
+    def interpretar_nivel(promedio):
+        """Devuelve una interpretación de nivel creativo según el valor promedio de 1 a 5."""
+        if promedio >= 4.0:
+            return "Nivel **alto**"
+        elif promedio >= 3.0:
+            return "Nivel **adecuado**"
+        elif promedio >= 2.0:
+            return "Nivel **limitado**"
+        else:
+            return "Nivel **bajo o evitativo**"
+
+    # Mostrar diagnóstico por dimensión
+    st.header("Diagnóstico por dimensión")
+    for nombre_dim, promedio in promedios_dim.items():
+        nivel_texto = interpretar_nivel(promedio)
+        st.write(f"- **{nombre_dim}:** {nivel_texto} (promedio = {promedio:.1f})")
+
+    # Mostrar diagnóstico global
+    st.subheader("Diagnóstico general")
+    nivel_global_texto = interpretar_nivel(puntaje_global)
+    st.write(f"**Puntaje global de creatividad:** {puntaje_global:.1f} – {nivel_global_texto}")
+
+    # Mostrar gráfico de radar con los promedios por dimensión
+    st.subheader("Perfil de Creatividad por Dimensión")
+    # Preparar datos para el radar
+    etiquetas = list(promedios_dim.keys())
+    valores = list(promedios_dim.values())
+    # Generar el gráfico de radar utilizando la función plot_radar predefinida
+    figura_radar = plot_radar(etiquetas, valores)
+    st.pyplot(figura_radar)
 
     st.markdown("---")
     st.subheader("📂 Análisis colectivo - Creatividad")
