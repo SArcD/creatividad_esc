@@ -167,13 +167,32 @@ def escala_phq9(nombre):
     archivo = st.file_uploader("Carga un archivo .csv con respuestas de PHQ-9", type=["csv"], key="phq9")
     if archivo:
         df = pd.read_csv(archivo)
-        preguntas = [
-            "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9"
+
+        # Columnas originales del archivo
+        columnas_originales = [f"Pregunta_{i}" for i in range(1, 10)]
+
+        # Nuevos nombres descriptivos por ítem
+        etiquetas_descriptivas = [
+            "Pérdida de interés", "Ánimo bajo", "Alteración del sueño",
+            "Cansancio", "Cambios en el apetito", "Autoimagen negativa",
+            "Dificultad para concentrarse", "Agitación o lentitud", "Ideación suicida"
         ]
+
+        # Crear un diccionario para cambiar nombres
+        renombrar = {f"Pregunta_{i+1}": etiquetas_descriptivas[i] for i in range(9)}
+        df = df.rename(columns=renombrar)
+
+        preguntas = etiquetas_descriptivas
         df["Puntaje Total"] = df[preguntas].sum(axis=1)
 
-        st.write("📊 Boxplot de respuestas por ítem")
-        fig = px.box(df, y=preguntas, points="all", title="Distribución de respuestas (PHQ-9)")
+        # Derretir el DataFrame para boxplot interactivo
+        df_melted = df.melt(id_vars=["Nombre", "Puntaje Total"], value_vars=preguntas,
+                        var_name="Síntoma", value_name="Respuesta")
+
+        st.write("📊 Boxplot de síntomas depresivos")
+        fig = px.box(df_melted, x="Síntoma", y="Respuesta", points="all",
+                 hover_data=["Nombre", "Puntaje Total"],
+                 title="Distribución de respuestas (PHQ-9)")
         st.plotly_chart(fig)
 
         st.subheader("🔍 Visualización individual o por perfil")
@@ -183,7 +202,7 @@ def escala_phq9(nombre):
             seleccion = st.selectbox("Selecciona un nombre:", df["Nombre"].unique(), key="phq9_nombre")
             alumno = df[df["Nombre"] == seleccion].iloc[0]
             plot_radar(preguntas, [alumno[p] for p in preguntas], f"PHQ-9 - {seleccion}")
-    
+
         elif opciones_filtrado == "Por perfil similar":
             umbral = st.slider("Filtra por puntaje total mínimo:", 0, 27, 10, 1, key="phq9_umbral")
             filtrado = df[df["Puntaje Total"] >= umbral]
@@ -192,7 +211,6 @@ def escala_phq9(nombre):
             for idx, row in filtrado.iterrows():
                 st.markdown(f"**{row['Nombre']} ({row['Puntaje Total']}):**")
                 plot_radar(preguntas, [row[p] for p in preguntas], row["Nombre"])
-
 
 # =====================================
 # ESCALA DE CREATIVIDAD DE GOUGH
