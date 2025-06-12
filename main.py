@@ -232,3 +232,89 @@ elif menu == "Análisis de grupo":
                 ax3.set_yticklabels(['1', '2', '3', '4', '5'])
                 ax3.set_title(row['Nombre'])
                 st.pyplot(fig3)
+
+
+####################################################################################################################
+
+import streamlit as st
+import pandas as pd
+import numpy as np
+import datetime
+
+st.set_page_config(page_title="Escala de Habilidades Sociales de Gismero", layout="centered")
+
+st.title("🗣️ Escala de Habilidades Sociales (EHS) - Gismero 2010")
+
+nombre = st.text_input("Nombre o identificador del estudiante:")
+
+st.write("Responde a cada afirmación según el grado con el que te identifiques. Usa la siguiente escala:")
+st.markdown("""
+1 = Nunca<br>
+2 = Casi nunca<br>
+3 = A veces<br>
+4 = Casi siempre<br>
+5 = Siempre
+""", unsafe_allow_html=True)
+
+# Lista de ítems representativos (pueden ser adaptados fielmente si se cuenta con todos)
+items = [
+    ("Autoexpresión en situaciones sociales", "Me resulta difícil hablar con personas que no conozco mucho."),
+    ("Autoexpresión en situaciones sociales", "Suelo ser espontáneo cuando estoy en grupo."),
+    ("Defensa de los propios derechos", "Defiendo mis derechos sin sentirme culpable."),
+    ("Expresión de ira o disconformidad", "Expreso mi desacuerdo aunque se enoje la otra persona."),
+    ("Paralización ante situaciones nuevas", "Me paralizo cuando tengo que hablar en público."),
+    ("Hacer peticiones", "Me cuesta pedir ayuda aunque la necesite."),
+    ("Iniciar interacciones positivas con el sexo opuesto", "Iniciar una conversación con alguien que me gusta me pone muy nervioso."),
+    ("Autoexpresión en situaciones sociales", "Suelo mantener el contacto visual cuando hablo."),
+    ("Defensa de los propios derechos", "Reclamo cuando algo no me parece justo."),
+    ("Hacer peticiones", "Pido favores sin sentirme incómodo."),
+    ("Paralización ante situaciones nuevas", "Me cuesta desenvolverme en entrevistas u orales."),
+    ("Iniciar interacciones positivas con el sexo opuesto", "No tengo problema en iniciar conversaciones amistosas con personas que me atraen.")
+]
+
+# Diccionario para acumular puntuaciones por dimensión
+respuestas = {}
+resultados_dim = {}
+
+for idx, (dim, texto) in enumerate(items):
+    valor = st.slider(f"{idx+1}. {texto}", 1, 5, 3, key=f"preg_{idx+1}")
+    if dim not in respuestas:
+        respuestas[dim] = []
+    respuestas[dim].append(valor)
+
+# Calcular promedios por dimensión
+for dim, vals in respuestas.items():
+    resultados_dim[dim] = round(np.mean(vals), 2)
+
+puntaje_global = round(np.mean(list(resultados_dim.values())), 2)
+
+st.markdown("---")
+st.subheader("📊 Resultado del perfil social")
+st.write(f"**Puntaje global:** {puntaje_global} (escala 1-5)")
+
+# Mostrar resultados por dimensión
+for dim, score in resultados_dim.items():
+    st.write(f"**{dim}:** {score}")
+
+# Interpretación general
+st.markdown("### 🧾 Interpretación global")
+if puntaje_global >= 4:
+    st.success("Perfil altamente habilidoso socialmente.")
+elif puntaje_global >= 3:
+    st.info("Perfil social moderado. Algunas áreas pueden requerir fortalecimiento.")
+elif puntaje_global >= 2:
+    st.warning("Perfil con posibles dificultades en habilidades sociales.")
+else:
+    st.error("Perfil con alta necesidad de intervención en habilidades sociales.")
+
+# Guardar resultados
+if st.button("💾 Guardar resultados"):
+    df_resultado = pd.DataFrame([{
+        "Nombre": nombre if nombre else "Anónimo",
+        "Fecha": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "Puntaje Global": puntaje_global,
+        **resultados_dim
+    }])
+    df_resultado.to_csv("resultados_EHS_Gismero.csv", mode='a', header=False, index=False)
+    st.success("Resultados guardados correctamente.")
+
