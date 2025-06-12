@@ -98,9 +98,22 @@ def escala_ehs(nombre):
     st.markdown("---")
     st.subheader("📈 Resultados")
 
-    # Mostrar puntajes por dimensión
+    # Mostrar puntajes y diagnóstico por dimensión
     for dim, score in dim_scores.items():
         st.write(f"**{dim}:** {score:.2f}")
+        if score >= 4.0:
+            st.success(f"Competencia alta en {dim.lower()}.")
+        elif score >= 3.0:
+            st.info(f"Competencia adecuada en {dim.lower()}.")
+        elif score >= 2.0:
+            st.warning(f"Dificultades moderadas en {dim.lower()}.")
+        else:
+            st.error(f"Dificultades significativas en {dim.lower()}.")
+
+    
+    # Mostrar puntajes por dimensión
+    #for dim, score in dim_scores.items():
+    #    st.write(f"**{dim}:** {score:.2f}")
 
     # Calcular puntaje global (promedio de los promedios)
     puntaje_global = sum(dim_scores.values()) / len(dim_scores)
