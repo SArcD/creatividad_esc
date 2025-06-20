@@ -469,16 +469,24 @@ def plot_radar(labels, values, title=""):
     )
     st.plotly_chart(fig)
 
-# Función principal
 def neuropsi_evaluacion(nombre):
     st.subheader("Evaluación NEUROPSI - Atención y Memoria (Versión Adaptada)")
 
     st.info("""
-    Esta prueba simula los tres dominios principales evaluados por NEUROPSI. Por favor, califica a la persona evaluada del 0 al 10 en cada tarea descrita, donde:
+    A continuación se presentan tareas agrupadas en tres dominios cognitivos. Para cada afirmación, selecciona el valor que mejor representa el desempeño observado:
 
     - **0**: Dificultad severa  
-    - **10**: Funcionamiento completamente adecuado  
+    - **1**: Desempeño limitado  
+    - **2**: Función adecuada  
+    - **3**: Función sobresaliente
     """)
+
+    opciones = {
+        0: "Dificultad severa",
+        1: "Desempeño limitado",
+        2: "Función adecuada",
+        3: "Función sobresaliente"
+    }
 
     dimensiones = {
         "Atención y funciones ejecutivas": [
@@ -512,13 +520,19 @@ def neuropsi_evaluacion(nombre):
         st.subheader(dim)
         suma = 0
         for preg in preguntas:
-            resp = st.slider(f"{contador}. {preg}", 0, 10, 5, key=f"neuropsi_{contador}")
+            resp = st.radio(
+                f"{contador}. {preg}",
+                options=list(opciones.keys()),
+                format_func=lambda x: opciones[x],
+                key=f"neuropsi_radio_{contador}",
+                horizontal=True
+            )
             respuestas[contador] = resp
             suma += resp
             contador += 1
         dim_scores[dim] = suma / len(preguntas)
 
-    puntaje_total = np.mean(list(respuestas.values()))
+    puntaje_total = np.mean(list(respuestas.values())) * 10 / 3  # Escalado a 10
     st.subheader("🧾 Resultado general estimado")
     st.write(f"**Puntaje promedio global:** {puntaje_total:.2f} / 10")
 
@@ -533,18 +547,18 @@ def neuropsi_evaluacion(nombre):
 
     st.subheader("📊 Perfil por dominio")
     for k, v in dim_scores.items():
-        st.write(f"**{k}:** {v:.2f}")
-        if v >= 8.0:
+        v10 = v * 10 / 3
+        st.write(f"**{k}:** {v10:.2f} / 10")
+        if v10 >= 8.0:
             st.success(f"Excelente desempeño en {k.lower()}.")
-        elif v >= 6.0:
+        elif v10 >= 6.0:
             st.info(f"Desempeño aceptable en {k.lower()}.")
-        elif v >= 4.0:
+        elif v10 >= 4.0:
             st.warning(f"Área con dificultades en {k.lower()}.")
         else:
             st.error(f"Dificultades severas en {k.lower()}.")
 
-    plot_radar(list(dim_scores.keys()), list(dim_scores.values()), f"Perfil NEUROPSI - {nombre}")
-
+    plot_radar(list(dim_scores.keys()), [v * 10 / 3 for v in dim_scores.values()], f"Perfil NEUROPSI - {nombre}")
 
 
 
