@@ -448,6 +448,103 @@ def escala_creatividad(nombre):
                 st.markdown(f"**{row['Nombre']} ({row['Puntaje Global']:.2f}):**")
                 plot_radar(dimensiones, [row[dim] for dim in dimensiones], row["Nombre"])
 
+import streamlit as st
+import numpy as np
+import plotly.graph_objects as go
+
+# Función para graficar el radar
+def plot_radar(labels, values, title=""):
+    fig = go.Figure()
+    fig.add_trace(go.Scatterpolar(
+        r=values + [values[0]],
+        theta=labels + [labels[0]],
+        fill='toself',
+        name='Puntaje'
+    ))
+    fig.update_layout(
+        polar=dict(radialaxis=dict(visible=True, range=[0, 10])),
+        showlegend=False,
+        title=title
+    )
+    st.plotly_chart(fig)
+
+# Función principal
+def neuropsi_evaluacion(nombre):
+    st.subheader("Evaluación NEUROPSI - Atención y Memoria (Versión Adaptada)")
+
+    st.info("""
+    Esta prueba simula los tres dominios principales evaluados por NEUROPSI. Por favor, califica a la persona evaluada del 0 al 10 en cada tarea descrita, donde:
+
+    - **0**: Dificultad severa  
+    - **10**: Funcionamiento completamente adecuado  
+    """)
+
+    dimensiones = {
+        "Atención y funciones ejecutivas": [
+            "Capacidad para enfocarse en estímulos relevantes",
+            "Mantiene la atención durante tareas largas",
+            "Velocidad de procesamiento mental",
+            "Fluidez verbal bajo presión",
+            "Capacidad para inhibir respuestas automáticas",
+            "Planeación y organización de tareas"
+        ],
+        "Memoria": [
+            "Recuerdo inmediato de listas verbales",
+            "Manipulación mental de información (memoria de trabajo)",
+            "Recuerdo diferido (sin claves)",
+            "Reconocimiento de información previa",
+            "Memoria visual de figuras y ubicaciones"
+        ],
+        "Lenguaje y habilidades académicas": [
+            "Comprensión oral de instrucciones",
+            "Expresión verbal espontánea",
+            "Nombramiento de objetos o imágenes",
+            "Comprensión lectora funcional",
+            "Resolución de operaciones matemáticas básicas"
+        ]
+    }
+
+    respuestas = {}
+    dim_scores = {}
+    contador = 1
+    for dim, preguntas in dimensiones.items():
+        st.subheader(dim)
+        suma = 0
+        for preg in preguntas:
+            resp = st.slider(f"{contador}. {preg}", 0, 10, 5, key=f"neuropsi_{contador}")
+            respuestas[contador] = resp
+            suma += resp
+            contador += 1
+        dim_scores[dim] = suma / len(preguntas)
+
+    puntaje_total = np.mean(list(respuestas.values()))
+    st.subheader("🧾 Resultado general estimado")
+    st.write(f"**Puntaje promedio global:** {puntaje_total:.2f} / 10")
+
+    if puntaje_total >= 8.0:
+        st.success("Funcionamiento cognitivo dentro del rango esperado.")
+    elif puntaje_total >= 6.0:
+        st.info("Funcionamiento adecuado con algunas áreas por observar.")
+    elif puntaje_total >= 4.0:
+        st.warning("Dificultades moderadas. Se sugiere valoración completa.")
+    else:
+        st.error("Dificultades significativas. Se recomienda evaluación profesional especializada.")
+
+    st.subheader("📊 Perfil por dominio")
+    for k, v in dim_scores.items():
+        st.write(f"**{k}:** {v:.2f}")
+        if v >= 8.0:
+            st.success(f"Excelente desempeño en {k.lower()}.")
+        elif v >= 6.0:
+            st.info(f"Desempeño aceptable en {k.lower()}.")
+        elif v >= 4.0:
+            st.warning(f"Área con dificultades en {k.lower()}.")
+        else:
+            st.error(f"Dificultades severas en {k.lower()}.")
+
+    plot_radar(list(dim_scores.keys()), list(dim_scores.values()), f"Perfil NEUROPSI - {nombre}")
+
+
 
 
 # === LLAMADO A FUNCIONES ===
@@ -457,3 +554,5 @@ elif menu == "PHQ-9 (Depresión)":
     escala_phq9(nombre)
 elif menu == "Escala de Creatividad":
     escala_creatividad(nombre)
+elif menu == "Neuropsi":
+    neurop(nombre)
