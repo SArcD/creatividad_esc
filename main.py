@@ -556,4 +556,4 @@ elif menu == "PHQ-9 (Depresión)":
 elif menu == "Escala de Creatividad":
     escala_creatividad(nombre)
 elif menu == "Neuropsi":
-    neurop(nombre)
+    neuropsi_evaluacion(nombre)
