@@ -12,7 +12,8 @@ st.title("🧠 Escalas Combinadas: Habilidades Sociales, Síntomas Depresivos y 
 menu = st.sidebar.radio("Selecciona una escala:", [
     "Escala de Habilidades Sociales",
     "PHQ-9 (Depresión)",
-    "Escala de Creatividad"])
+    "Escala de Creatividad", 
+    "Neuropsi"])
 
 nombre = st.text_input("Nombre o identificador del estudiante:")
 
